@@ -1,0 +1,194 @@
+import java.util.*;
+
+
+class Main
+{
+
+    // To store matrix cell coordinates
+    static class Point
+    {
+        int x;
+        int y;
+
+        public Point(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    };
+
+    // A Data Structure for queue used in BFS
+    static class queueNode
+    {
+        Point pt; // The coordinates of a cell
+        int dist; // cell's distance of from the source
+
+        public queueNode(Point pt, int dist)
+        {
+            this.pt = pt;
+            this.dist = dist;
+        }
+    };
+
+    // check whether given cell (row, col)
+// is a valid cell or not.
+    static boolean isValid(int row, int col, int ROW, int COL)
+    {
+        // return true if row number and
+        // column number is in range
+        return (row >= 0) && (row < ROW) &&
+                (col >= 0) && (col < COL);
+    }
+
+    // These arrays are used to get row and column
+// numbers of 4 neighbours of a given cell
+    static int rowNum[] = {-1, 0, 0, 1,1,-1,-1,1};
+    static int colNum[] = {0, -1, 1, 0,1,-1,1,-1};
+
+    // function to find the shortest path between
+// a given source cell to a destination cell.
+    static int BFS(int mat[][], Point src,
+                   Point dest, int ROW, int COL,int n)
+    {
+        // check source and destination cell
+        // of the matrix have value 1
+        if (mat[src.x][src.y] != 1 ||
+                mat[dest.x][dest.y] != 1)
+            return -1;
+
+        boolean [][]visited = new boolean[ROW][COL];
+
+        // Mark the source cell as visited
+        visited[src.x][src.y] = true;
+
+        // Create a queue for BFS
+        Queue<queueNode> q = new LinkedList<>();
+
+        // Distance of source cell is 0
+        queueNode s = new queueNode(src, 0);
+        q.add(s); // Enqueue source cell
+
+        // Do a BFS starting from source cell
+        while (!q.isEmpty())
+        {
+            queueNode curr = q.peek();
+            Point pt = curr.pt;
+
+            // If we have reached the destination cell,
+            // we are done
+            if (pt.x == dest.x && pt.y == dest.y)
+                return curr.dist;
+
+            // Otherwise dequeue the front cell
+            // in the queue and enqueue
+            // its adjacent cells
+            q.remove();
+
+            for (int i = 0; i < n; i++)
+            {
+                int row = pt.x + rowNum[i];
+                int col = pt.y + colNum[i];
+
+                // if adjacent cell is valid, has path
+                // and not visited yet, enqueue it.
+                if (isValid(row, col, ROW, COL) &&
+                        mat[row][col] == 1 &&
+                        !visited[row][col])
+                {
+                    // mark cell as visited and enqueue it
+                    visited[row][col] = true;
+                    queueNode Adjcell = new queueNode
+                            (new Point(row, col),
+                                    curr.dist + 1 );
+                    q.add(Adjcell);
+                }
+            }
+        }
+
+        // Return -1 if destination cannot be reached
+        return -1;
+    }
+
+    // Driver Code
+    public static void main(String[] args)
+    {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("1. matrix entered by the user\n2. random matrix \nEnter your choice");
+        int choice = sc.nextInt();
+
+        System.out.println("enter the vertix of matrix");
+
+        int ROW = sc.nextInt();
+        int COL = sc.nextInt();
+        int[][] matrix = new int[ROW][COL];
+        switch(choice)
+        {
+            case 1:
+                System.out.println("enter the matrix");
+                for(int i=0;i<ROW;i++)
+                {
+                    for(int j =0;j<COL;j++)
+                    {
+                        matrix[i][j] = sc.nextInt();
+                    }
+                }
+                break ;
+            case 2:
+                Random x = new Random();
+                for (int i = 0; i < ROW; i++) {
+                    for (int j = 0; j < COL; j++) {
+                        matrix[i][j] = x.nextInt(2);
+                        System.out.print(matrix[i][j] + "  ");
+                    }
+                    System.out.println("");
+                }
+        }
+
+        //Start and End cell
+        for (; ; ) {
+            System.out.println("enter the source row and col");
+            int sr = sc.nextInt();
+
+            int source_col = sc.nextInt();
+            while(sr>=ROW||source_col>=COL)
+            {
+                System.out.println("entered vertex are beyond the scope \n plz enter the proper values");
+                sr = sc.nextInt();
+
+                source_col = sc.nextInt();
+            }
+            System.out.println("enter the dest. row and col");
+            int destr = sc.nextInt();
+            int destc = sc.nextInt();
+            while(destr>=ROW||destc>=COL)
+            {
+                System.out.println("entered vertex are beyond the scope \n plz enter the proper values");
+                destr = sc.nextInt();
+                destc = sc.nextInt();
+            }
+            int n;
+            System.out.println("1.diagonal is allowed \n2.diagonal is not allowed ");
+            System.out.println("enter your choice");
+            int ch = sc.nextInt();
+            if(ch==1)
+                n=8;
+            else
+                n=4;
+            System.out.println("your source position : {"+sr+" , "+source_col+"}");
+            System.out.println("your destination position : {"+destr+" , "+destc+"}");
+
+            Point source = new Point(sr, source_col);
+            Point dest = new Point(destr, destc);
+
+
+            int dist = BFS(matrix, source, dest, ROW, COL,n);
+
+            if (dist != -1) {
+                System.out.println("Shortest Path is " + dist);
+                break;
+            }
+            else
+                System.out.println("Shortest Path doesn't exist");
+        }
+    }
+}
